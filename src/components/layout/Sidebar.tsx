@@ -1,12 +1,12 @@
 "use client";
 
-import { Role, SIDEBAR_CONFIG } from "@/lib/sidebar.config";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowLeft, ArrowRight, LogOut, Menu } from "lucide-react";
-import { useSidebar } from "../contexts/SidebarContext";
 import { useAuth } from "../providers/AuthProvider";
 import { useEffect } from "react";
+import { Role, SIDEBAR_CONFIG } from "../lib/sidebar.config";
+import { useSidebar } from "../providers/SidebarContext";
 
 export default function Sidebar({ role }: { role: Role }) {
 	const pathname = usePathname();

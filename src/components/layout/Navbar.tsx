@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogOut, Menu, User, UserPenIcon } from "lucide-react";
-import { useSidebar } from "../contexts/SidebarContext";
 import { useAuth } from "../providers/AuthProvider";
 import { useState, useRef, useEffect } from "react";
+import { useSidebar } from "../providers/SidebarContext";
 
 export default function Navbar() {
 	const { toggle } = useSidebar();

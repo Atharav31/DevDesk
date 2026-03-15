@@ -10,7 +10,7 @@ import {
 
 import { LucideIcon } from "lucide-react";
 
-export type Role = "SUPER_ADMIN" | "ADMIN" | "USER";
+export type Role = "ADMIN" | "DEVELOPER";
 
 export interface SidebarItem {
 	label: string;
@@ -25,80 +25,9 @@ export interface SidebarSection {
 }
 
 export const SIDEBAR_CONFIG: Record<Role, SidebarSection[]> = {
-	SUPER_ADMIN: [
-		{
-			title: "Overview",
-			items: [
-				{
-					label: "Dashboard",
-					href: "/super-admin/dashboard",
-					icon: LayoutDashboard,
-				},
-			],
-		},
-		{
-			title: "Company Management",
-			items: [
-				{
-					label: "Company Management",
-					href: "/super-admin/companies",
-					icon: FileText,
-				},
-				{
-					label: "Approvals",
-					href: "/super-admin/approvals",
-					icon: CheckCircle,
-				},
-			],
-		},
-	],
-
-	USER: [
-		{
-			title: "Overview",
-			items: [
-				{
-					label: "Dashboard",
-					href: "/user/dashboard",
-					icon: LayoutDashboard,
-				},
-			],
-		},
-		{
-			title: "Contracts",
-			items: [
-				{
-					label: "Contracts",
-					href: "/user/contracts",
-					icon: ClipboardList,
-				},
-				{
-					label: "Templates",
-					href: "/user/templates",
-					icon: FileText,
-				},
-				{
-					label: "Clauses",
-					href: "/user/clauses",
-					icon: FileCheck,
-				},
-			],
-		},
-		{
-			title: "Approvals",
-			items: [
-				{
-					label: "Approvals",
-					href: "/user/approvals",
-					icon: CheckCircle,
-				},
-			],
-		},
-	],
-
 	ADMIN: [
 		{
-			title: "Overview",
+			title: "Dashboard",
 			items: [
 				{
 					label: "Dashboard",
@@ -107,18 +36,15 @@ export const SIDEBAR_CONFIG: Record<Role, SidebarSection[]> = {
 				},
 			],
 		},
+	],
+	DEVELOPER: [
 		{
-			title: "Management",
+			title: "Dashboard",
 			items: [
 				{
-					label: "User Management",
-					href: "/admin/users",
-					icon: Users,
-				},
-				{
-					label: "Vendor Management",
-					href: "/admin/vendors",
-					icon: Building2,
+					label: "Dashboard",
+					href: "/developer/dashboard",
+					icon: LayoutDashboard,
 				},
 			],
 		},
