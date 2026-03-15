@@ -69,7 +69,11 @@ export default function Navbar() {
 				</button>
 
 				<Link href="/" className="flex items-center">
-					<img src="/proc.png" alt="Proc Logo" className="h-8 w-auto" />
+					<img
+						src="/devdesk-logo.png"
+						alt="DevDesk Logo"
+						className="h-8 w-auto"
+					/>
 				</Link>
 			</div>
 

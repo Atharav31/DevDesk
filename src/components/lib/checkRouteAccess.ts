@@ -2,6 +2,7 @@ import { Role, SIDEBAR_CONFIG } from "./sidebar.config";
 export const ROLE_DASHBOARD: Record<Role, string> = {
 	ADMIN: "/admin/dashboard",
 	DEVELOPER: "/developer/dashboard",
+	SUPER_ADMIN: "/super-admin/dashboard",
 };
 export const COMMON_ROUTES = [
 	"/profile",
