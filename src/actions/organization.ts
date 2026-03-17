@@ -1,17 +1,8 @@
-"use client";
-
 import { getBaseUrl } from "@/components/lib/getBaseUrl";
-import { getToken } from "@/components/lib/getToken";
 
 const BASE_URL = getBaseUrl();
 
-export async function getOrganization() {
-	const token = getToken();
-	if (!token) {
-		console.warn("[getOrganization] no token found in localStorage");
-		return null;
-	}
-
+export async function getOrganization(token: string) {
 	try {
 		const res = await fetch(`${BASE_URL}/api/organizations`, {
 			method: "GET",
@@ -34,13 +25,7 @@ export async function getOrganization() {
 	}
 }
 
-export async function createOrganization(data: any) {
-	const token = getToken();
-	if (!token) {
-		console.warn("[createOrganization] no token found in localStorage");
-		return null;
-	}
-
+export async function createOrganization(data: any, token: string) {
 	try {
 		const res = await fetch(`${BASE_URL}/api/organizations`, {
 			method: "POST",
@@ -58,13 +43,7 @@ export async function createOrganization(data: any) {
 	}
 }
 
-export async function updateOrganization(id: string, data: any) {
-	const token = getToken();
-	if (!token) {
-		console.warn("[updateOrganization] no token found in localStorage");
-		return null;
-	}
-
+export async function updateOrganization(id: string, data: any, token: string) {
 	try {
 		const res = await fetch(`${BASE_URL}/api/organizations/${id}`, {
 			method: "PUT",
@@ -82,16 +61,10 @@ export async function updateOrganization(id: string, data: any) {
 	}
 }
 
-export async function deleteOrganization(id: string) {
-	const token = getToken();
-	if (!token) {
-		console.warn("[deleteOrganization] no token found in localStorage");
-		return null;
-	}
-
+export async function deleteOrganization(id: string, token: string) {
 	try {
-		const res = await fetch(`${BASE_URL}/api/organizations/${id}`, {
-			method: "DELETE",
+		const res = await fetch(`${BASE_URL}/api/organizations/${id}/delete`, {
+			method: "POST",
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
