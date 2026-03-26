@@ -54,10 +54,7 @@ export default function DashboardLayout({
 			<Sidebar role={data.user.role} />
 
 			{/* Main Content Wrapper */}
-			<div
-				className={`flex flex-col flex-1 transition-all duration-300 ${
-					isOpen ? "md:ml-0" : "md:ml-20"
-				}`}>
+			<div className={`flex flex-col flex-1 transition-all duration-300 `}>
 				{/* Mobile Header */}
 				<header className="md:hidden flex items-center justify-between px-4 py-3 border-b bg-background">
 					<button

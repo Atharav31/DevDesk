@@ -18,7 +18,8 @@ export async function getOrgUsers(token: string) {
 			return null;
 		}
 
-		return await res.json();
+		const data = await res.json();
+		return data?.users ?? data ?? null;
 	} catch (error) {
 		console.error("[getOrgUsers] fetch error:", error);
 		return null;
@@ -94,4 +95,54 @@ export async function deleteUser(id: string, token: string) {
 		console.error("[deleteUser] fetch error:", error);
 		throw error;
 	}
+}
+
+export async function fetchUserProfile(token: string) {
+	console.log("🔐 Fetching user profile...");
+	console.log("📦 Token:", token);
+
+	try {
+		const res = await fetch(`${BASE_URL}/api/users/profile`, {
+			credentials: "include",
+			method: "GET",
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+			cache: "no-store",
+		});
+
+		console.log("📡 Response status:", res.status);
+
+		const data = await res.json();
+
+		console.log("📥 Response data:", data);
+
+		if (!res.ok) {
+			console.error("❌ Failed to fetch profile:", data);
+			throw new Error("Failed to fetch profile");
+		}
+
+		return data;
+	} catch (error) {
+		console.error("🔥 Error in fetchUserProfile:", error);
+		throw error;
+	}
+}
+
+export async function updateUserProfile(data: any, token: string) {
+	const res = await fetch(`${BASE_URL}/api/users/profile`, {
+		method: "PUT",
+		credentials: "include",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${token}`,
+		},
+		body: JSON.stringify(data),
+	});
+
+	if (!res.ok) {
+		throw new Error("Failed to update profile");
+	}
+
+	return res.json();
 }

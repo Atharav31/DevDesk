@@ -5,131 +5,171 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import {
 	Mail,
 	User,
-	Building2,
 	Phone,
-	ShieldCheck,
 	KeyRound,
+	ShieldCheck,
+	ExternalLink,
 } from "lucide-react";
 
 import { fetchUserProfile, updateUserProfile } from "@/actions/users";
-import { getToken } from "@/app/utils/getToken";
 import ForgotPasswordDialog from "@/components/modals/ForgotPasswordDialog";
 import toast from "react-hot-toast";
+import { getToken } from "@/components/lib/getToken";
 
+// ---------- Types ----------
+interface UserProfile {
+	id: string;
+	name: string;
+	email: string;
+	phone?: string;
+	role: string;
+	avatar?: string;
+	// extra fields may still come from API but are not shown
+}
+
+// ---------- Component ----------
 export default function ProfilePage() {
 	const { user } = useAuth();
 	const token = getToken();
 
-	const [profile, setProfile] = useState<any>(null);
-	const [form, setForm] = useState<any>({});
+	const [profile, setProfile] = useState<UserProfile | null>(null);
+	const [form, setForm] = useState<Partial<UserProfile>>({});
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [openReset, setOpenReset] = useState(false);
 
-	// fields config (easy to extend)
+	// Editable fields configuration
 	const editableFields = [
-		{ key: "name", label: "Full Name", icon: User },
-		{ key: "phone", label: "Phone", icon: Phone },
+		{ key: "name" as const, label: "Full Name", icon: User, type: "text" },
+		{ key: "phone" as const, label: "Phone", icon: Phone, type: "tel" },
 	];
 
-	// fetch profile
+	// Fetch profile
 	useEffect(() => {
 		const loadProfile = async () => {
 			try {
-				const res = await fetchUserProfile(token!);
-				const data = res.data;
-
+				const data = await fetchUserProfile(token!);
 				setProfile(data);
-				setForm(data); // auto populate form
+				setForm(data);
 			} catch (err) {
-				console.error(err);
+				console.error("Error fetching profile:", err);
+				toast.error("Failed to load profile");
 			} finally {
 				setLoading(false);
 			}
 		};
 
 		if (user) loadProfile();
-	}, [user]);
+	}, [user, token]);
 
-	// dynamic change handler
-	const handleChange = (key: string, value: string) => {
-		setForm((prev: any) => ({
-			...prev,
-			[key]: value,
-		}));
+	const handleChange = (key: keyof UserProfile, value: string) => {
+		setForm((prev) => ({ ...prev, [key]: value }));
 	};
 
-	// update profile
 	const handleSave = async () => {
 		try {
 			setSaving(true);
-
 			const updated = await updateUserProfile(form, token!);
-
-			setProfile(updated.data);
-			setForm(updated.data);
-
+			setProfile(updated.user);
+			setForm(updated.user);
 			toast.success("Profile updated successfully");
 		} catch (err: any) {
 			console.error(err);
-
 			toast.error(err?.message || "Failed to update profile");
 		} finally {
 			setSaving(false);
 		}
 	};
 
-	if (loading) return <div className="p-8">Loading profile...</div>;
+	// Loading state with skeleton
+	if (loading) {
+		return (
+			<div className="p-8 bg-gray-50 min-h-screen animate-pulse">
+				<div className="mb-6">
+					<div className="h-8 w-48 bg-gray-200 rounded"></div>
+					<div className="h-4 w-64 bg-gray-200 rounded mt-2"></div>
+				</div>
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+					<div className="bg-white rounded-xl shadow-sm border p-6 space-y-4">
+						<div className="flex items-center gap-4">
+							<div className="h-16 w-16 rounded-full bg-gray-200"></div>
+							<div className="space-y-2">
+								<div className="h-5 w-32 bg-gray-200 rounded"></div>
+								<div className="h-4 w-48 bg-gray-200 rounded"></div>
+							</div>
+						</div>
+						{[1, 2, 3].map((i) => (
+							<div key={i} className="h-12 bg-gray-200 rounded"></div>
+						))}
+					</div>
+					<div className="bg-white rounded-xl shadow-sm border p-6 space-y-4">
+						<div className="h-6 w-36 bg-gray-200 rounded"></div>
+						{[1, 2].map((i) => (
+							<div key={i} className="h-8 bg-gray-200 rounded"></div>
+						))}
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	if (!profile) return null;
 
 	return (
 		<div className="p-8 bg-gray-50 min-h-screen">
+			{/* Header */}
 			<div className="mb-6">
-				<h1 className="text-2xl font-semibold">My Profile</h1>
+				<h1 className="text-2xl font-semibold text-gray-900">My Profile</h1>
 				<p className="text-gray-500 text-sm">Manage your account information</p>
 			</div>
 
+			{/* Two-column layout */}
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-				{/* PROFILE CARD */}
-				<div className="bg-white rounded-xl shadow-sm border p-6">
+				{/* Profile Card */}
+				<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+					{/* Avatar + name/email */}
 					<div className="flex items-center gap-4 mb-6">
-						<div className="h-16 w-16 rounded-full bg-brand text-white flex items-center justify-center text-xl font-bold overflow-hidden">
-							{profile?.avatar ?
+						<div className="h-16 w-16 rounded-full bg-brand text-white flex items-center justify-center text-xl font-bold overflow-hidden shadow-sm">
+							{profile.avatar ?
 								<img
 									src={profile.avatar}
 									alt={profile.name || "User"}
 									className="w-full h-full object-cover"
 								/>
-							: profile?.name ?
+							: profile.name ?
 								profile.name
 									.split(" ")
-									.map((n: string) => n[0])
+									.map((n) => n[0])
 									.join("")
 									.slice(0, 2)
 									.toUpperCase()
 							:	<User size={24} />}
 						</div>
-
 						<div>
-							<h2 className="font-semibold text-lg">{profile.name}</h2>
+							<h2 className="font-semibold text-lg text-gray-900">
+								{profile.name}
+							</h2>
 							<p className="text-sm text-gray-500">{profile.email}</p>
 						</div>
 					</div>
 
+					{/* Editable fields */}
 					<div className="space-y-4">
-						{/* Dynamic editable fields */}
 						{editableFields.map((field) => {
 							const Icon = field.icon;
-
 							return (
 								<div key={field.key}>
-									<label className="text-sm text-gray-600">{field.label}</label>
-
-									<div className="flex items-center border rounded-md px-3 py-2 mt-1">
+									<label
+										htmlFor={field.key}
+										className="text-sm text-gray-600 font-medium">
+										{field.label}
+									</label>
+									<div className="flex items-center border border-gray-300 rounded-md px-3 py-2 mt-1 focus-within:ring-2 focus-within:ring-brand/20 focus-within:border-brand transition">
 										<Icon size={16} className="text-gray-400 mr-2" />
-
 										<input
-											className="w-full outline-none text-sm"
+											id={field.key}
+											type={field.type}
+											className="w-full outline-none text-sm bg-transparent"
 											value={form[field.key] || ""}
 											onChange={(e) => handleChange(field.key, e.target.value)}
 										/>
@@ -138,11 +178,10 @@ export default function ProfilePage() {
 							);
 						})}
 
-						{/* Email (readonly) */}
+						{/* Email (read-only) */}
 						<div>
-							<label className="text-sm text-gray-600">Email</label>
-
-							<div className="flex items-center border rounded-md px-3 py-2 mt-1 bg-gray-50">
+							<label className="text-sm text-gray-600 font-medium">Email</label>
+							<div className="flex items-center border border-gray-300 rounded-md px-3 py-2 mt-1 bg-gray-50 text-gray-700">
 								<Mail size={16} className="text-gray-400 mr-2" />
 								{profile.email}
 							</div>
@@ -153,13 +192,12 @@ export default function ProfilePage() {
 							<button
 								onClick={handleSave}
 								disabled={saving}
-								className="px-5 py-2 rounded-md bg-brand text-white text-sm hover:bg-brand-dark disabled:opacity-50">
+								className="px-5 py-2 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand-dark transition disabled:opacity-50 disabled:cursor-not-allowed">
 								{saving ? "Saving..." : "Save Changes"}
 							</button>
-
 							<button
 								onClick={() => setOpenReset(true)}
-								className="flex items-center gap-2 px-4 py-2 text-sm border rounded-md hover:bg-gray-100">
+								className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 transition">
 								<KeyRound size={16} />
 								Forgot Password
 							</button>
@@ -167,71 +205,25 @@ export default function ProfilePage() {
 					</div>
 				</div>
 
-				{/* ACCOUNT DETAILS */}
-				<div className="bg-white rounded-xl shadow-sm border p-6">
-					<h2 className="font-semibold text-lg mb-4">Account Details</h2>
-
-					<div className="space-y-4 text-sm">
+				{/* Account Details Card */}
+				<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+					<h2 className="font-semibold text-lg mb-4 text-gray-900">
+						Account Details
+					</h2>
+					<div className="space-y-3 text-sm">
 						<InfoRow label="User ID" value={profile.id} />
 						<InfoRow label="Role" value={profile.role} />
-
-						<InfoRow
-							label="Company"
-							value={
-								<span className="flex items-center gap-1">
-									<Building2 size={14} />
-									{profile.companyName}
-								</span>
-							}
-						/>
-
-						<InfoRow
-							label="Status"
-							value={
-								<span className="text-green-600 font-medium">
-									{profile.isActive ? "Active" : "Inactive"}
-								</span>
-							}
-						/>
-
-						<InfoRow
-							label="Created At"
-							value={new Date(profile.createdAt).toLocaleDateString()}
-						/>
-
-						<InfoRow
-							label="Last Active"
-							value={
-								profile.lastActive ?
-									new Date(profile.lastActive).toLocaleString()
-								:	"Never"
-							}
-						/>
 					</div>
 
-					{/* Permissions */}
-					<div className="mt-6">
-						<h3 className="font-medium mb-2 flex items-center gap-2">
-							<ShieldCheck size={16} />
-							Permissions
-						</h3>
+					{/* Optional: if you want to show a subtle divider */}
+					<div className="border-t border-gray-100 my-4"></div>
 
-						<div className="grid grid-cols-2 gap-2 text-sm">
-							<span>
-								Can Create: {profile.permissions?.canCreate ? "✔" : "✖"}
-							</span>
-							<span>Can Edit: {profile.permissions?.canEdit ? "✔" : "✖"}</span>
-							<span>
-								Can Delete: {profile.permissions?.canDelete ? "✔" : "✖"}
-							</span>
-							<span>
-								Can Approve: {profile.permissions?.canApprove ? "✔" : "✖"}
-							</span>
-						</div>
-					</div>
+					{/* Permissions (as per design, not shown, but if you want to keep them you can add a separate section later) */}
+					{/* We omit permissions to match the design exactly */}
 				</div>
 			</div>
 
+			{/* Forgot password dialog */}
 			<ForgotPasswordDialog
 				isOpen={openReset}
 				onClose={() => setOpenReset(false)}
@@ -240,11 +232,12 @@ export default function ProfilePage() {
 	);
 }
 
-function InfoRow({ label, value }: any) {
+// ---------- Helper Component ----------
+function InfoRow({ label, value }: { label: string; value: string | number }) {
 	return (
-		<div className="flex justify-between">
+		<div className="flex justify-between py-1">
 			<span className="text-gray-500">{label}</span>
-			<span className="font-medium">{value}</span>
+			<span className="font-medium text-gray-900">{value}</span>
 		</div>
 	);
 }

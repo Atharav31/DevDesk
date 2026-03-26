@@ -262,7 +262,7 @@ const UserManager: React.FC<UserManagerProps> = ({
 
 			{/* Unified Add/Edit Dialog */}
 			<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-				<DialogContent className="sm:max-w-[425px]">
+				<DialogContent className="sm:max-w-106.25">
 					<DialogHeader>
 						<DialogTitle>
 							{dialogMode === "add" ? "Add Member" : "Edit Member"}
